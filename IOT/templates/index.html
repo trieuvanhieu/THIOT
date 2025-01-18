@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điều Khiển Động Cơ</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const socket = io();
+
+            // Theo dõi trạng thái nút và cập nhật trạng thái động cơ
+            const motorStatusButton = document.getElementById("motor-status-btn");
+            let motorStatus = 0; // 0: Tắt, 1: Bật
+
+            motorStatusButton.addEventListener("click", function () {
+                motorStatus = motorStatus === 0 ? 1 : 0; // Chuyển đổi trạng thái
+
+                // Gửi trạng thái động cơ qua WebSocket
+                socket.emit("motor_control", { status: motorStatus });
+
+                // Cập nhật giao diện
+                motorStatusButton.textContent = motorStatus === 1 ? "Tắt Động Cơ" : "Bật Động Cơ";
+                document.getElementById("motor-status-display").textContent = motorStatus === 1 ? "Bật" : "Tắt";
+            });
+
+            // Nhận trạng thái động cơ từ server
+            socket.on("motor_status_update", function (data) {
+                motorStatus = data.status;
+                motorStatusButton.textContent = motorStatus === 1 ? "Tắt Động Cơ" : "Bật Động Cơ";
+                document.getElementById("motor-status-display").textContent = motorStatus === 1 ? "Bật" : "Tắt";
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Điều Khiển Động Cơ</h1>
+    <div>
+        <p><strong>Trạng thái động cơ:</strong> <span id="motor-status-display">Tắt</span></p>
+        <button id="motor-status-btn">Bật Động Cơ</button>
+    </div>
+</body>
+</html>
